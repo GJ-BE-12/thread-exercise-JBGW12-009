@@ -43,12 +43,11 @@ public class CounterHandler implements Runnable {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                Thread.currentThread().isInterrupted();
-                log.error("Thread Interrupted", e);
+                throw new RuntimeException(e);
             }
 
             count++;
-            log.info("thread: {}, count: {}", Thread.currentThread(), count);
+            log.info("thread: {}, count: {}", Thread.currentThread().getName(), count);
         } while (count < countMaxSize);
     }
 }
