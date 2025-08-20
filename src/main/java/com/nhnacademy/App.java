@@ -44,11 +44,22 @@ public class App
         threadB.start();
         log.debug("threadB-state:{}",threadB.getState());
 
-        //TODO#1 Main Thread가 threadA, ThreadB가 종료될 때 까지 대기 합니다. Thread.yield를 사용 합니다.
+        //TODO#1 - main Thread 에서 3초 후  threadA에 interrupt 예외를 발생 시킵니다.
+        try {
+            Thread.sleep(3000);
+            threadA.interrupt();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        //TODO#3 Main Thread가 threadA, ThreadB가 종료될 때 까지 대기 합니다. Thread.yield를 사용 합니다.
         Thread.yield();
 
-        // threadA, threadB가 종료되면 'Application exit!' message를 출력 합니다.
-        log.debug("Application exit!");
+        //threadA, threadB 상태를 출력 합니다.
+        log.debug("threadA-status:{}",threadA.getState());
+        log.debug("threadB-status:{}",threadB.getState());
 
+        //main thread 종료, 'Application exit!' message를 출력 합니다.
+        log.debug("Application exit!");
     }
 }
