@@ -54,12 +54,12 @@ public class CounterThread extends Thread{
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                log.error("Thread Interrupted", e);
                 Thread.currentThread().isInterrupted();
+                log.error("Thread Interrupted", e);
             }
 
             count++;
-            log.info("Thread: {}, Count: {}", this.getName(), count);
+            log.info("thread: {}, count: {}", this.getName(), count);
         } while (count<countMaxSize);
     }
 }
