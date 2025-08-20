@@ -12,56 +12,73 @@
 
 package com.nhnacademy;
 
-import com.nhnacademy.count.SharedCounter;
-import com.nhnacademy.thread.CounterIncreaseHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class App
-{
+public class App {
 
-    public static void main( String[] args )
-    {
+    private static final Object resource1 = new Object();
+    private static final Object resource2 = new Object();
 
-        //TODO#1 shardCounter 객체를 0으로 초기화 합니다.
-        SharedCounter sharedCounter = new SharedCounter(0);
+    public static void main(String[] args) {
 
-        //TODO#2 counterIncreaseHandler 객체를 생성 합니다.
-        CounterIncreaseHandler counterIncreaseHandler = new CounterIncreaseHandler(sharedCounter);
+        // TODO#1 Thread-1 가 resource1의 접근 권한을 획득하기 위해 대기 합니다.
+        Thread thread1 = new Thread(() -> {
+            synchronized (resource1) {
+                log.debug("{}: locked resource 1", Thread.currentThread().getName());
 
-        //TODO#3 counterIncreaseHandler를 이용해서 threadA를 생성 합니다.
-        Thread threadA = new Thread(counterIncreaseHandler);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    log.debug(e.getMessage());
+                }
+            }
+        });
+        thread1.setName("Thread-1");
 
-        //TODO#4 threadA의 thread name을 "thread-A"로 설정 합니다.
-        threadA.setName("thread-A");
+        // TODO#2 Thread-2 가 resource1의 접근 권한을 획득한 상태에서 resource2의 접근 권한을 대기하고 있습니다.
+        Thread thread2 = new Thread(() -> {
+            synchronized (resource1) { // resource1을 먼저 잠금
+                log.debug("{}: locked resource 1", Thread.currentThread().getName());
 
-        //TODO#5 threadA를 시작 합니다.
-        threadA.start();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    log.debug(e.getMessage());
+                }
 
-        //TODO#6 counterIncreaseHandler를 이용해서 threadB를 생성 합니다.
-        Thread threadB = new Thread(counterIncreaseHandler);
+                synchronized (resource2) {
+                    log.debug("{}: locked resource 2", Thread.currentThread().getName());
+                }
+            }
+        });
+        thread2.setName("Thread-2");
 
-        //TODO#7 threadB의 name을 'thread-B' 로 설정 합니다.
-        threadB.setName("thread-B");
+        // TODO#3 Thread-3 가 resource2의 접근 권한을 획득합니다.
+        Thread thread3 = new Thread(() -> {
+            synchronized (resource2) { // resource2을 먼저 잠금
+                log.debug("{}: locked resource 2", Thread.currentThread().getName());
 
-        //TODO#8 threadB를 시작 합니다.
-        threadB.start();
+                try {
+                    while (true) {
+                        Thread.sleep(1000);
+                    }
+                } catch (InterruptedException e) {
+                    log.debug(e.getMessage());
+                }
+            }
+        });
+        thread3.setName("Thread-3");
 
-        //TODO#9 main thread가 실행 후 20초 후 threadA, threadB 종료될 수 있도록 interrupt 발생 시킵니다.
         try {
-            Thread.sleep(20000);
-
-            threadA.interrupt();
-            threadB.interrupt();
+            thread3.start();
+            Thread.sleep(1000);
+            thread2.start();
+            Thread.sleep(1000);
+            thread1.start();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            log.debug(e.getMessage());
         }
-
-        //TODO#10 main Thread는 threadA와 threadB의 상태가 terminated가 될 때 까지 대기 합니다. 즉 threadA, threadB가 종료될 때 까지 대기(양보) 합니다.
-        while (threadA.isAlive() && threadB.isAlive()) {
-            Thread.yield();
-        }
-
-        log.debug("System exit!");
     }
+
 }
