@@ -44,7 +44,7 @@ public class CounterIncreaseHandler implements Runnable {
                 log.debug("{} - interrupt!",Thread.currentThread().getName());
 
                 //TODO#2-4 현제 Thread에 interrupt()를 호출하여 interrput()를 발생 시킵 니다. 즉 현제 Thread의 interrupted 값이 -> true로 변경 됩니다. -> 즉 while 문을 종료하게 됩니다.
-                Thread.currentThread().isInterrupted();
+                Thread.currentThread().interrupt();
             }
         }
     }
