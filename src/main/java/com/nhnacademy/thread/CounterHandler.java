@@ -15,15 +15,13 @@ package com.nhnacademy.thread;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-//TODO#1 Runnable interface을 implements(구현) 합니다.
-public class CounterHandler implements Runnable {
+public class CounterHandler implements Runnable  {
     private final long countMaxSize;
 
     private long count;
 
     public CounterHandler(long countMaxSize) {
-        //TODO#2 countMaxSize <=0 이면 IllegalArgumentException()이 발생 합니다.
-        if (countMaxSize <= 0) {
+        if(countMaxSize<=0){
             throw new IllegalArgumentException();
         }
 
@@ -33,21 +31,16 @@ public class CounterHandler implements Runnable {
 
     @Override
     public void run() {
-        /* TODO#3 run method를 구현 합니다.
-             - 1초에 한 번식 다음과 같이 출력 됩니다.
-             - count 1 ~ 10 까지 출력 됩니다.
-            ex) thread:my-thread,count:1 ....
-         */
-
         do {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-
             count++;
-            log.info("thread: {}, count: {}", Thread.currentThread().getName(), count);
-        } while (count < countMaxSize);
+            log.debug("thread:{},state:{},count:{}",Thread.currentThread().getName(),Thread.currentThread().getState(),count);
+            //TODO#2 Thread.yield()를 사용해서 수행되고 있는 작업을 다른 Thread에게 양보 하세요.
+            Thread.yield();
+        }while (count<countMaxSize);
     }
 }
