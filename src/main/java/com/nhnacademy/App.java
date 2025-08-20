@@ -22,24 +22,28 @@ public class App {
 
     public static void main(String[] args) {
 
-        // TODO#1 Thread-1 가 resource1의 접근 권한을 획득하기 위해 대기 합니다.
+        //TODO#1 Thread-1 가 resource2의 접근 권한을 획득한 상태에서 resource1의 접근 권한을 대기하고 있습니다.
         Thread thread1 = new Thread(() -> {
-            synchronized (resource1) {
-                log.debug("{}: locked resource 1", Thread.currentThread().getName());
+            synchronized (resource2) {
+                log.debug("{}: locked resource 2", Thread.currentThread().getName() );
 
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     log.debug(e.getMessage());
                 }
+
+                synchronized (resource1) {
+                    log.debug("{}: locked resource 1", Thread.currentThread().getName());
+                }
             }
         });
         thread1.setName("Thread-1");
 
-        // TODO#2 Thread-2 가 resource1의 접근 권한을 획득한 상태에서 resource2의 접근 권한을 대기하고 있습니다.
+        //TODO#2 Thread-2 가 resource1의 접근 권한을 획득한 상태에서 resource2의 접근 권한을 대기하고 있습니다.
         Thread thread2 = new Thread(() -> {
             synchronized (resource1) { // resource1을 먼저 잠금
-                log.debug("{}: locked resource 1", Thread.currentThread().getName());
+                log.debug("{}: locked resource 1",Thread.currentThread().getName());
 
                 try {
                     Thread.sleep(1000);
@@ -48,37 +52,16 @@ public class App {
                 }
 
                 synchronized (resource2) {
-                    log.debug("{}: locked resource 2", Thread.currentThread().getName());
+                    log.debug("{}: locked resource 2",Thread.currentThread().getName());
                 }
             }
         });
         thread2.setName("Thread-2");
 
-        // TODO#3 Thread-3 가 resource2의 접근 권한을 획득합니다.
-        Thread thread3 = new Thread(() -> {
-            synchronized (resource2) { // resource2을 먼저 잠금
-                log.debug("{}: locked resource 2", Thread.currentThread().getName());
 
-                try {
-                    while (true) {
-                        Thread.sleep(1000);
-                    }
-                } catch (InterruptedException e) {
-                    log.debug(e.getMessage());
-                }
-            }
-        });
-        thread3.setName("Thread-3");
-
-        try {
-            thread3.start();
-            Thread.sleep(1000);
-            thread2.start();
-            Thread.sleep(1000);
-            thread1.start();
-        } catch (InterruptedException e) {
-            log.debug(e.getMessage());
-        }
+        thread1.start();
+        thread2.start();
     }
+
 
 }
